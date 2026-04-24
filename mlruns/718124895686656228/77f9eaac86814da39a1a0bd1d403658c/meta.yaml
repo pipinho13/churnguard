@@ -1,0 +1,14 @@
+artifact_uri: /Users/gpipis/Documents/Personal/ForTheBlog/churn_project/mlruns/718124895686656228/77f9eaac86814da39a1a0bd1d403658c/artifacts
+end_time: 1776921495050
+entry_point_name: ''
+experiment_id: '718124895686656228'
+lifecycle_stage: active
+run_id: 77f9eaac86814da39a1a0bd1d403658c
+run_name: angry-toad-60
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1776921491510
+status: 3
+tags: []
+user_id: gpipis
