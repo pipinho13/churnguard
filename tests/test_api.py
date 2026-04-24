@@ -1,7 +1,7 @@
-import pytest
-from fastapi.testclient import TestClient
-import sys
 import os
+import sys
+
+from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.api import app
@@ -61,8 +61,8 @@ class TestHealth:
     def test_health_response_structure(self):
         response = client.get("/health")
         data = response.json()
-        assert "status"  in data
-        assert "model"   in data
+        assert "status" in data
+        assert "model" in data
         assert "version" in data
 
     def test_health_status_is_ok(self):
@@ -79,8 +79,8 @@ class TestPredict:
         response = client.post("/predict", json=VALID_CUSTOMER)
         data = response.json()
         assert "churn_probability" in data
-        assert "churn_prediction"  in data
-        assert "risk_level"        in data
+        assert "churn_prediction" in data
+        assert "risk_level" in data
 
     def test_churn_probability_is_between_0_and_1(self):
         response = client.post("/predict", json=VALID_CUSTOMER)
@@ -99,7 +99,7 @@ class TestPredict:
 
     def test_low_risk_customer_scores_lower_than_high_risk(self):
         high_risk = client.post("/predict", json=VALID_CUSTOMER).json()
-        low_risk  = client.post("/predict", json=LOW_RISK_CUSTOMER).json()
+        low_risk = client.post("/predict", json=LOW_RISK_CUSTOMER).json()
         assert low_risk["churn_probability"] < high_risk["churn_probability"]
 
     def test_prediction_consistent_with_probability(self):

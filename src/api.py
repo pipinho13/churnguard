@@ -1,61 +1,54 @@
+import os
+import time
+
 import joblib
-import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel, Field
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
-import time
-import os
 
 MODEL_DIR = "models"
 
 app = FastAPI(
-    title="ChurnGuard API",
-    description="Customer churn prediction service",
-    version="1.0.0"
+    title="ChurnGuard API", description="Customer churn prediction service", version="1.0.0"
 )
 
-model         = joblib.load(os.path.join(MODEL_DIR, "model.pkl"))
-scaler        = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
+model = joblib.load(os.path.join(MODEL_DIR, "model.pkl"))
+scaler = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
 feature_names = joblib.load(os.path.join(MODEL_DIR, "feature_names.pkl"))
 
 REQUEST_COUNT = Counter(
-    "churnguard_requests_total",
-    "Total prediction requests",
-    ["endpoint", "status"]
+    "churnguard_requests_total", "Total prediction requests", ["endpoint", "status"]
 )
 REQUEST_LATENCY = Histogram(
-    "churnguard_request_latency_seconds",
-    "Request latency in seconds",
-    ["endpoint"]
+    "churnguard_request_latency_seconds", "Request latency in seconds", ["endpoint"]
 )
 CHURN_PREDICTED = Counter(
-    "churnguard_churn_predicted_total",
-    "Total customers predicted as churned"
+    "churnguard_churn_predicted_total", "Total customers predicted as churned"
 )
 
 
 class CustomerFeatures(BaseModel):
-    gender: int                = Field(..., ge=0, le=1,    description="0=Female, 1=Male")
-    SeniorCitizen: int         = Field(..., ge=0, le=1)
-    Partner: int               = Field(..., ge=0, le=1)
-    Dependents: int            = Field(..., ge=0, le=1)
-    tenure: int                = Field(..., ge=0,          description="Months with company")
-    PhoneService: int          = Field(..., ge=0, le=1)
-    MultipleLines: int         = Field(..., ge=0, le=2)
-    InternetService: int       = Field(..., ge=0, le=2)
-    OnlineSecurity: int        = Field(..., ge=0, le=2)
-    OnlineBackup: int          = Field(..., ge=0, le=2)
-    DeviceProtection: int      = Field(..., ge=0, le=2)
-    TechSupport: int           = Field(..., ge=0, le=2)
-    StreamingTV: int           = Field(..., ge=0, le=2)
-    StreamingMovies: int       = Field(..., ge=0, le=2)
-    Contract: int              = Field(..., ge=0, le=2,    description="0=M2M, 1=1yr, 2=2yr")
-    PaperlessBilling: int      = Field(..., ge=0, le=1)
-    PaymentMethod: int         = Field(..., ge=0, le=3)
-    MonthlyCharges: float      = Field(..., gt=0)
-    TotalCharges: float        = Field(..., ge=0)
+    gender: int = Field(..., ge=0, le=1, description="0=Female, 1=Male")
+    SeniorCitizen: int = Field(..., ge=0, le=1)
+    Partner: int = Field(..., ge=0, le=1)
+    Dependents: int = Field(..., ge=0, le=1)
+    tenure: int = Field(..., ge=0, description="Months with company")
+    PhoneService: int = Field(..., ge=0, le=1)
+    MultipleLines: int = Field(..., ge=0, le=2)
+    InternetService: int = Field(..., ge=0, le=2)
+    OnlineSecurity: int = Field(..., ge=0, le=2)
+    OnlineBackup: int = Field(..., ge=0, le=2)
+    DeviceProtection: int = Field(..., ge=0, le=2)
+    TechSupport: int = Field(..., ge=0, le=2)
+    StreamingTV: int = Field(..., ge=0, le=2)
+    StreamingMovies: int = Field(..., ge=0, le=2)
+    Contract: int = Field(..., ge=0, le=2, description="0=M2M, 1=1yr, 2=2yr")
+    PaperlessBilling: int = Field(..., ge=0, le=1)
+    PaymentMethod: int = Field(..., ge=0, le=3)
+    MonthlyCharges: float = Field(..., gt=0)
+    TotalCharges: float = Field(..., ge=0)
 
 
 class PredictionResponse(BaseModel):
@@ -93,9 +86,7 @@ def predict(customer: CustomerFeatures):
         REQUEST_LATENCY.labels(endpoint="/predict").observe(time.time() - start)
 
         return PredictionResponse(
-            churn_probability=round(float(proba), 4),
-            churn_prediction=prediction,
-            risk_level=risk
+            churn_probability=round(float(proba), 4), churn_prediction=prediction, risk_level=risk
         )
 
     except Exception as e:
