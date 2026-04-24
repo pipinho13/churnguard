@@ -12,7 +12,7 @@ import mlflow.sklearn
 import joblib
 import os
 
-MLFLOW_TRACKING_URI = "mlruns"
+MLFLOW_TRACKING_URI = "./mlruns"
 EXPERIMENT_NAME    = "churnguard"
 MODEL_DIR          = "models"
 DATA_URL = (
@@ -87,7 +87,7 @@ def train():
 
         mlflow.log_metric("accuracy", acc)
         mlflow.log_metric("roc_auc",  auc)
-        mlflow.sklearn.log_model(model, "model")
+        mlflow.sklearn.log_model(model, name="model")
 
         print(f"\nAccuracy : {acc:.4f}")
         print(f"ROC-AUC  : {auc:.4f}")
