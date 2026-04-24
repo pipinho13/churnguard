@@ -74,7 +74,9 @@ def train():
     }
 
     with mlflow.start_run():
-        mlflow.log_params(params)
+        
+        if not os.getenv("CI"):
+            mlflow.sklearn.log_model(model, name="model")
 
         model = RandomForestClassifier(**params)
         model.fit(X_train_sc, y_train)
